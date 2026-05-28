@@ -27,6 +27,8 @@ def safe_download(label, func, *args, **kwargs):
 def save(df, filename):
     if df is not None:
         path = OUTPUT_DIR / filename
+        if hasattr(df, 'to_frame'):
+            df = df.to_frame()
         df.to_parquet(path)
         print(f"  Saved to {path}")
 
