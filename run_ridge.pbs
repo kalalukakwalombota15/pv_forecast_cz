@@ -1,0 +1,15 @@
+#!/bin/bash
+#PBS -N ridge
+#PBS -l walltime=01:00:00
+#PBS -l mem=8gb
+#PBS -l ncpus=4
+#PBS -j oe
+#PBS -o logs/ridge.log
+
+echo "Job started: $(date)"
+cd $PBS_O_WORKDIR
+module add mambaforge
+source /software/mambaforge/22.9.0-3/etc/profile.d/conda.sh
+conda activate /storage/praha1/home/kalaluka_1550/.conda/envs/pvforecast
+python notebooks/train_ridge.py
+echo "Job finished: $(date)"
