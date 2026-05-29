@@ -6,8 +6,8 @@ from scipy.interpolate import CubicSpline
 # ── config ────────────────────────────────────────────────
 DATA_DIR   = Path("data")
 OUTPUT     = Path("data/master_features.parquet")
-SOLAR_ELEV_THRESHOLD = 5  # degrees — below this is night
-MAX_GAP_FILL = 2  # hours — gaps longer than this are dropped
+SOLAR_ELEV_THRESHOLD = 5
+MAX_GAP_FILL = 2
 # ─────────────────────────────────────────────────────────
 
 print("Loading ENTSO-E datasets...")
@@ -25,7 +25,6 @@ flow_pl  = pd.read_parquet(DATA_DIR / "entsoe_cz_pl_flow.parquet")
 weather  = pd.read_parquet(DATA_DIR / "openmeteo_cz_historical.parquet")
 
 def to_series(df, name):
-    """Flatten any DataFrame to a single named Series at hourly UTC."""
     if isinstance(df, pd.DataFrame):
         s = df.iloc[:, 0]
     else:
@@ -35,11 +34,6 @@ def to_series(df, name):
     return s
 
 def cubic_resample(series, target_freq='h'):
-    """
-    Resample a time series to target frequency using cubic spline interpolation.
-    Implements the natural cubic spline from Stoer & Bulirsch §2.4.
-    Short gaps (<=2h) are filled; longer gaps remain NaN.
-    """
     series = series.sort_index()
     series = series[~series.index.duplicated(keep='first')]
     full_index = pd.date_range(
@@ -49,14 +43,10 @@ def cubic_resample(series, target_freq='h'):
     )
     resampled = series.resample(target_freq).mean()
     resampled = resampled.reindex(full_index)
-
-    # identify gaps
     is_nan = resampled.isna()
     gap_groups = (is_nan != is_nan.shift()).cumsum()
     gap_sizes = is_nan.groupby(gap_groups).transform('sum')
     long_gap = is_nan & (gap_sizes > MAX_GAP_FILL)
-
-    # fill short gaps with cubic spline
     valid = resampled[~is_nan]
     if len(valid) > 3:
         x_valid = np.array([t.timestamp() for t in valid.index])
@@ -65,7 +55,6 @@ def cubic_resample(series, target_freq='h'):
         x_all = np.array([t.timestamp() for t in resampled.index])
         interpolated = pd.Series(cs(x_all), index=resampled.index)
         resampled = resampled.where(~is_nan | long_gap, interpolated)
-
     resampled[long_gap] = np.nan
     return resampled
 
@@ -89,50 +78,43 @@ weather_vars = [
     'direct_normal_irradiance', 'global_tilted_irradiance',
     'cloud_cover', 'temperature_2m', 'wind_speed_10m', 'precipitation'
 ]
-agg = weather.groupby('time')[weather_vars].agg(['mean', 
-    lambda x: x.quantile(0.1), 
-    lambda x: x.quantile(0.9)])
-new_cols = []
-seen = {}
-for c in agg.columns:
-    suffix = 'mean' if c[1] == 'mean' else 'p10' if 'quantile 0.1' in str(c[1]) else 'p90'
-    col = f"{c[0]}_{suffix}"
-    if col in seen:
-        seen[col] += 1
-        col = f"{col}_{seen[col]}"
-    else:
-        seen[col] = 0
-    new_cols.append(col)
-agg.columns = new_cols
+
+agg_mean = weather.groupby('time')[weather_vars].mean()
+agg_p10  = weather.groupby('time')[weather_vars].quantile(0.1)
+agg_p90  = weather.groupby('time')[weather_vars].quantile(0.9)
+
+agg_mean.columns = [f"{c}_mean" for c in agg_mean.columns]
+agg_p10.columns  = [f"{c}_p10"  for c in agg_p10.columns]
+agg_p90.columns  = [f"{c}_p90"  for c in agg_p90.columns]
+
+agg = pd.concat([agg_mean, agg_p10, agg_p90], axis=1)
 agg.index = pd.to_datetime(agg.index, utc=True)
 
 print("Building time and solar features...")
 master = pd.DataFrame(index=solar_h.index)
-master['solar_mw']       = solar_h
-master['load_mw']        = load_h
-master['wind_mw']        = wind_h
-master['hydro_mw']       = hydro_h
-master['nuclear_mw']     = nuclear_h
-master['price_eur_mwh']  = prices_h
-master['gen_forecast_mw']= gen_fc_h
-master['flow_de_mw']     = flow_de_h
-master['flow_at_mw']     = flow_at_h
-master['flow_sk_mw']     = flow_sk_h
-master['flow_pl_mw']     = flow_pl_h
+master['solar_mw']        = solar_h
+master['load_mw']         = load_h
+master['wind_mw']         = wind_h
+master['hydro_mw']        = hydro_h
+master['nuclear_mw']      = nuclear_h
+master['price_eur_mwh']   = prices_h
+master['gen_forecast_mw'] = gen_fc_h
+master['flow_de_mw']      = flow_de_h
+master['flow_at_mw']      = flow_at_h
+master['flow_sk_mw']      = flow_sk_h
+master['flow_pl_mw']      = flow_pl_h
 
 master = master.join(agg, how='left')
 
-# time features
-master['hour']          = master.index.hour
-master['day_of_year']   = master.index.dayofyear
-master['month']         = master.index.month
-master['is_weekend']    = master.index.dayofweek >= 5
-master['sin_hour']      = np.sin(2 * np.pi * master['hour'] / 24)
-master['cos_hour']      = np.cos(2 * np.pi * master['hour'] / 24)
-master['sin_doy']       = np.sin(2 * np.pi * master['day_of_year'] / 365)
-master['cos_doy']       = np.cos(2 * np.pi * master['day_of_year'] / 365)
+master['hour']        = master.index.hour
+master['day_of_year'] = master.index.dayofyear
+master['month']       = master.index.month
+master['is_weekend']  = master.index.dayofweek >= 5
+master['sin_hour']    = np.sin(2 * np.pi * master['hour'] / 24)
+master['cos_hour']    = np.cos(2 * np.pi * master['hour'] / 24)
+master['sin_doy']     = np.sin(2 * np.pi * master['day_of_year'] / 365)
+master['cos_doy']     = np.cos(2 * np.pi * master['day_of_year'] / 365)
 
-# solar elevation angle (approximate for Czech Republic centre: 49.8N, 15.5E)
 lat, lon = 49.8, 15.5
 def solar_elevation(dt_index):
     lat_r = np.radians(lat)
@@ -149,7 +131,6 @@ def solar_elevation(dt_index):
 master['solar_elevation'] = solar_elevation(master.index)
 master['daylight_flag']   = (master['solar_elevation'] > SOLAR_ELEV_THRESHOLD).astype(int)
 
-# clearness index (proxy): actual radiation / max radiation that day
 rad_col = 'shortwave_radiation_mean'
 if rad_col in master.columns:
     daily_max = master[rad_col].resample('D').transform('max')
