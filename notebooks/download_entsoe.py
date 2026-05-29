@@ -2,7 +2,7 @@ from entsoe import EntsoePandasClient
 import pandas as pd
 from pathlib import Path
 
-API_TOKEN = "f8cf96ed-dfcf-4b93-a1a0-7e5aabf4af5a"
+API_TOKEN = "YOUR_TOKEN_HERE"
 START     = pd.Timestamp("2023-01-01", tz="Europe/Prague")
 END       = pd.Timestamp("2025-12-31", tz="Europe/Prague")
 COUNTRY   = "CZ"

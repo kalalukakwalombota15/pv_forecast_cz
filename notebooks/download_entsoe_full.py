@@ -3,7 +3,7 @@ import pandas as pd
 from pathlib import Path
 import time
 
-API_TOKEN  = "REPLACE_THIS"
+API_TOKEN  = "YOUR_TOKEN_HERE"
 START      = pd.Timestamp("2023-01-01", tz="Europe/Prague")
 END        = pd.Timestamp("2025-12-31", tz="Europe/Prague")
 COUNTRY    = "CZ"
