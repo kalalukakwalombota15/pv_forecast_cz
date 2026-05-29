@@ -42,12 +42,12 @@ test  = df[df.index > VAL_END]
 
 print(f"Train: {len(train)} rows | Val: {len(val)} rows | Test: {len(test)} rows")
 
-X_train = train[FEATURES].fillna(0).values
-y_train = train[TARGET].fillna(0).values
-X_val   = val[FEATURES].fillna(0).values
-y_val   = val[TARGET].fillna(0).values
-X_test  = test[FEATURES].fillna(0).values
-y_test  = test[TARGET].fillna(0).values
+X_train = train[FEATURES].fillna(0).values.astype(float)
+y_train = train[TARGET].fillna(0).values.astype(float)
+X_val   = val[FEATURES].fillna(0).values.astype(float)
+y_val   = val[TARGET].fillna(0).values.astype(float)
+X_test  = test[FEATURES].fillna(0).values.astype(float)
+y_test  = test[TARGET].fillna(0).values.astype(float)
 
 mean = X_train.mean(axis=0)
 std  = X_train.std(axis=0) + 1e-8
@@ -106,9 +106,9 @@ results.append(evaluate(y_val,   val_pred,   "Ridge (Val)",   val['daylight_flag
 results.append(evaluate(y_test,  test_pred,  "Ridge (Test)",  test['daylight_flag'].values))
 
 model_data = {
-    'coeffs': coeffs,
-    'mean': mean,
-    'std': std,
+    'coeffs': coeffs.tolist(),
+    'mean': mean.tolist(),
+    'std': std.tolist(),
     'best_lambda': best_lam,
     'features': FEATURES
 }
