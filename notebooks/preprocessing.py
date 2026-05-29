@@ -92,10 +92,18 @@ weather_vars = [
 agg = weather.groupby('time')[weather_vars].agg(['mean', 
     lambda x: x.quantile(0.1), 
     lambda x: x.quantile(0.9)])
-agg.columns = ['_'.join([c[0], 
-    'mean' if c[1] == 'mean' else 
-    'p10' if 'quantile 0.1' in str(c[1]) else 'p90']) 
-    for c in agg.columns]
+new_cols = []
+seen = {}
+for c in agg.columns:
+    suffix = 'mean' if c[1] == 'mean' else 'p10' if 'quantile 0.1' in str(c[1]) else 'p90'
+    col = f"{c[0]}_{suffix}"
+    if col in seen:
+        seen[col] += 1
+        col = f"{col}_{seen[col]}"
+    else:
+        seen[col] = 0
+    new_cols.append(col)
+agg.columns = new_cols
 agg.index = pd.to_datetime(agg.index, utc=True)
 
 print("Building time and solar features...")
