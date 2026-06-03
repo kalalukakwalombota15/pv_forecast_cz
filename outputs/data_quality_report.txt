@@ -1,0 +1,62 @@
+============================================================
+PV FORECAST CZ — DATA QUALITY REPORT
+============================================================
+
+[1] Loading ENTSO-E datasets...
+All datasets loaded.
+
+[2] Resampling ENTSO-E data to hourly using cubic spline...
+  solar_mw: short gaps filled=2, long gaps dropped=0
+  load_mw: short gaps filled=2, long gaps dropped=0
+  wind_mw: short gaps filled=2, long gaps dropped=0
+  hydro_mw: short gaps filled=2, long gaps dropped=0
+  nuclear_mw: short gaps filled=2, long gaps dropped=0
+  price_eur_mwh: short gaps filled=3, long gaps dropped=0
+  gen_forecast_mw: short gaps filled=2, long gaps dropped=0
+  flow_de_mw: short gaps filled=2, long gaps dropped=0
+  flow_at_mw: short gaps filled=2, long gaps dropped=0
+  flow_sk_mw: short gaps filled=4, long gaps dropped=0
+  flow_pl_mw: short gaps filled=2, long gaps dropped=0
+
+[3] Physical validation of solar generation...
+  Night hours forced to zero: 4340 values corrected
+  Negative values clipped to zero: 0 values corrected
+  Ramp rate violations (>1000 MW/h): 30
+  Ramp violations corrected by linear interpolation
+  Outliers (>3 sigma daylight): 5 values capped
+
+[4] Aggregating Open-Meteo weather across 15 Czech cities...
+  Weather aggregated: 27 features across 26304 hours
+
+[5] Building master feature table...
+
+[6] Adding lag features...
+
+[7] Adding rolling statistics...
+
+[8] Filtering to 2023-2025 and final cleaning...
+
+[9] Timestamp alignment verification...
+  Expected hours: 26304
+  Actual hours:   26280
+  Missing hours:  24
+  Extra hours:    0
+
+[10] Final data quality summary...
+  Master table shape: (26280, 58)
+  Date range: 2023-01-01 00:00:00+00:00 to 2025-12-30 23:00:00+00:00
+  Columns with missing values:
+    solar_lag_24h: 23 missing (0.1%)
+    solar_lag_168h: 167 missing (0.6%)
+
+  Solar MW statistics:
+    Min: 0.00 MW
+    Max: 3164.97 MW
+    Mean: 425.53 MW
+    Installed capacity range: 2580 - 4798 MW
+
+============================================================
+DATA QUALITY REPORT COMPLETE
+============================================================
+
+Saved to data/master_features_v2.parquet
