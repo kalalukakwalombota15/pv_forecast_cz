@@ -11,4 +11,5 @@ cd $PBS_O_WORKDIR
 module add mambaforge
 source /software/mambaforge/22.9.0-3/etc/profile.d/conda.sh
 conda activate /storage/praha1/home/kalaluka_1550/.conda/envs/pvforecast
-pyth
+python notebooks/monthly_backtest.py
+echo "Job finished: $(date)"
