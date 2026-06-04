@@ -1,0 +1,5 @@
+metric,value
+PICP_p10_p90 (nominal 0.80),0.6980874316939891
+PIT_mean (ideal 0.50),0.5694840569439364
+PIT_std (ideal ~0.289),0.30193341151649855
+n,732.0
