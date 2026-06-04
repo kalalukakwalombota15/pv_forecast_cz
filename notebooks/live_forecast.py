@@ -122,7 +122,7 @@ except Exception as e:
 
 try:
     gf = ent.query_generation_forecast(country_code="CZ", start=start, end=end)
-    if hasattr(gf, 'to_frame'): gf = gf.iloc[:,0] if hasattr(gf,'iloc') and gf.ndim>1 else gf
+    if hasattr(gf, "ndim") and gf.ndim > 1: gf = gf.iloc[:, 0]
     gf.index = pd.to_datetime(gf.index, utc=True)
     m['gen_forecast_mw'] = gf.reindex(m.index, method='nearest').values
 except Exception as e:
@@ -149,7 +149,7 @@ X = m[DAYAHEAD_FEATURES].fillna(0)
 p50 = model_p50.predict(X).clip(0)
 p10 = model_p10.predict(X).clip(0)
 p90 = model_p90.predict(X).clip(0)
-p10 = np.minimum(p10, p50); p90 = np.maximum(p90, p50)
+q = np.sort(np.column_stack([p10, p50, p90]), axis=1); p10, p50, p90 = q[:,0], q[:,1], q[:,2]
 
 out = pd.DataFrame({'p10':p10,'p50':p50,'p90':p90}, index=m.index)
 out.to_csv(RES_DIR / "live_forecast_48h.csv")
