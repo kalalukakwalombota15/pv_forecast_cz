@@ -1,0 +1,40 @@
+{
+  "LightGBM_dayahead": {
+    "MAE": 43.48979446460991,
+    "RMSE": 98.77340596652833,
+    "MAPE_daylight": 27.545652086704546,
+    "Bias": -13.252774615114209,
+    "SkillScore_vs_persistence": 0.6141203464454221,
+    "PICP_p10_p90": 0.8917082011780698,
+    "PINAW_p10_p90": 0.04843452089373839,
+    "ZeroOutputAcc": 0.928135593220339
+  },
+  "Persistence_24h": {
+    "MAE": 96.90264725872224,
+    "RMSE": 255.96945849998812,
+    "MAPE_daylight": 56.150222241209704,
+    "Bias": 3.8031332125056636
+  },
+  "Physical_baseline": {
+    "MAE": 188.18757112126067,
+    "RMSE": 437.2133523370965,
+    "MAPE_daylight": 74.89613783683387,
+    "Bias": -186.4563320227461,
+    "SkillScore_vs_persistence": -0.708068434801634
+  },
+  "DM_LightGBM_vs_persistence": {
+    "DM_stat": -6.578459030528392,
+    "p_value": 4.753486493314085e-11
+  },
+  "DM_LightGBM_vs_physical": {
+    "DM_stat": -8.896282329383606,
+    "p_value": 0.0
+  },
+  "LightGBM_intraday": {
+    "MAE": 21.869435006827203,
+    "RMSE": 52.60314913928174,
+    "MAPE_daylight": 13.97143557230662,
+    "Bias": -3.483636108794649,
+    "SkillScore_vs_persistence": 0.7944944312983958
+  }
+}
