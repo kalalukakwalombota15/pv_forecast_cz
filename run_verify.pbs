@@ -1,0 +1,15 @@
+#!/bin/bash
+#PBS -N verify
+#PBS -l walltime=00:30:00
+#PBS -l mem=4gb
+#PBS -l ncpus=2
+#PBS -j oe
+#PBS -o logs/verify.log
+
+echo "Job started: $(date)"
+cd $PBS_O_WORKDIR
+module add mambaforge
+source /software/mambaforge/22.9.0-3/etc/profile.d/conda.sh
+conda activate /storage/praha1/home/kalaluka_1550/.conda/envs/pvforecast
+python notebooks/verify_live.py
+echo "Job finished: $(date)"
