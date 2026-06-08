@@ -1,0 +1,14 @@
+{
+  "LightGBM_vs_XGBoost": {
+    "DM_stat": 0.14610373289065798,
+    "p_value": 0.8838394996206818
+  },
+  "LightGBM_vs_CatBoost": {
+    "DM_stat": -5.079262476255847,
+    "p_value": 3.7890291992859204e-07
+  },
+  "XGBoost_vs_CatBoost": {
+    "DM_stat": -4.804403362400392,
+    "p_value": 1.5521364384873948e-06
+  }
+}
