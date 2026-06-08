@@ -1,0 +1,10 @@
+{
+  "conformal_Q_MW": 170.36666898031808,
+  "n_calibration_daylight": 3248,
+  "daylight_PICP_before": 0.6980874316939891,
+  "daylight_PICP_after": 0.9371584699453552,
+  "daylight_PINAW_before": 0.1426310466643467,
+  "daylight_PINAW_after": 0.26140833418764126,
+  "full_PICP_before": 0.8917082011780698,
+  "full_PICP_after": 0.9791572270049841
+}
