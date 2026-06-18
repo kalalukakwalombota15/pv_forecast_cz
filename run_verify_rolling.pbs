@@ -1,0 +1,17 @@
+#!/bin/bash
+#PBS -N verify_roll
+#PBS -l walltime=00:20:00
+#PBS -l mem=4gb
+#PBS -l ncpus=2
+#PBS -j oe
+#PBS -o logs/verify_rolling.log
+
+cd $PBS_O_WORKDIR
+module add mambaforge
+source /software/mambaforge/22.9.0-3/etc/profile.d/conda.sh
+conda activate /storage/praha1/home/kalaluka_1550/.conda/envs/pvforecast
+
+export ENTSOE_TOKEN="$(cat /storage/praha1/home/kalaluka_1550/.entsoe_token)"
+echo "Run date: $(date) | token length ${#ENTSOE_TOKEN}"
+python notebooks/verify_rolling.py
+echo "Done: $(date)"
